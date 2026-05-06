@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Steeped - Big reads, small notes.</title>
+  <meta name="description" content="Steeped turns the current page into a short note with sources. Your key stays in Chrome.">
+  <meta property="og:title" content="Steeped">
+  <meta property="og:description" content="Big reads, small notes. The current page becomes a short note with sources.">
+  <meta property="og:url" content="https://steeped.page">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://steeped.page/social-card.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://steeped.page/social-card.png">
+  <link rel="icon" type="image/png" href="./icons/icon48.png">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --paper: #f7f1e5;
+      --paper-2: #fff9ef;
+      --ink: #13171d;
+      --muted: #626a70;
+      --soft: #8b918e;
+      --line: #d9cfbd;
+      --navy: #07101c;
+      --navy-2: #0d192a;
+      --cream: #f4eadb;
+      --tan: #d5b487;
+      --teal: #2f8983;
+      --shadow: rgba(33, 25, 10, 0.16);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(19, 23, 29, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(19, 23, 29, 0.032) 1px, transparent 1px);
+      background-size: 30px 30px;
+      mask-image: linear-gradient(to bottom, #000, transparent 84%);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    p, h1, h2, h3 {
+      margin: 0;
+    }
+
+    .shell {
+      width: min(100% - 42px, 1120px);
+      margin-inline: auto;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(217, 207, 189, 0.78);
+      background: rgba(247, 241, 229, 0.86);
+      backdrop-filter: blur(20px) saturate(1.08);
+      -webkit-backdrop-filter: blur(20px) saturate(1.08);
+    }
+
+    .nav-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 17px;
+      font-weight: 760;
+      letter-spacing: -0.01em;
+    }
+
+    .brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      box-shadow: 0 2px 5px rgba(7, 16, 28, 0.2);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 11px;
+      border-radius: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .nav-link:hover {
+      color: var(--ink);
+      background: rgba(255, 249, 239, 0.7);
+    }
+
+    .button {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 720;
+      line-height: 1;
+      white-space: nowrap;
+      transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button.primary {
+      background: var(--navy);
+      color: var(--cream);
+      box-shadow: 0 10px 24px rgba(7, 16, 28, 0.16);
+    }
+
+    .button.secondary {
+      border-color: var(--line);
+      background: rgba(255, 249, 239, 0.68);
+      color: var(--ink);
+    }
+
+    .button[data-pending="true"] {
+      background: #ded4c2;
+      color: #4d554f;
+      box-shadow: none;
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: clamp(52px, 7vw, 92px) 0 64px;
+      text-align: center;
+    }
+
+    .hero-icon {
+      width: clamp(74px, 8vw, 106px);
+      height: clamp(74px, 8vw, 106px);
+      border-radius: 22px;
+      box-shadow:
+        0 18px 36px rgba(7, 16, 28, 0.18),
+        0 0 0 6px rgba(255, 249, 239, 0.72);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 26px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 720;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      background: var(--tan);
+      box-shadow: 0 0 0 6px rgba(213, 180, 135, 0.2);
+    }
+
+    h1 {
+      max-width: 900px;
+      margin-top: 22px;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      font-size: clamp(58px, 8vw, 118px);
+      line-height: 0.92;
+      font-weight: 780;
+      letter-spacing: -0.035em;
+    }
+
+    h1 span {
+      display: block;
+    }
+
+    .lede {
+      max-width: 570px;
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: clamp(18px, 2.1vw, 25px);
+      line-height: 1.35;
+      font-weight: 500;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .notes {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px 20px;
+      margin-top: 24px;
+      color: var(--soft);
+      font-size: 13.5px;
+      font-weight: 660;
+    }
+
+    .notes span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notes span::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 2px;
+      background: var(--teal);
+    }
+
+    .demo {
+      width: min(100%, 980px);
+      margin-top: 42px;
+      border: 1px solid rgba(19, 23, 29, 0.12);
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--paper-2), #efe6d6);
+      box-shadow:
+        0 38px 90px var(--shadow),
+        0 2px 5px rgba(33, 25, 10, 0.08);
+    }
+
+    .demo-bar {
+      height: 50px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 16px;
+      padding: 0 18px;
+      border-bottom: 1px solid rgba(19, 23, 29, 0.11);
+      color: var(--soft);
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .dots {
+      display: flex;
+      gap: 9px;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #d8cfbd;
+    }
+
+    .demo-url {
+      min-width: 0;
+      text-align: left;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .demo-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(285px, 360px);
+      min-height: 420px;
+    }
+
+    .page {
+      padding: 46px 58px;
+    }
+
+    .line {
+      height: 11px;
+      margin-bottom: 16px;
+      border-radius: 99px;
+      background: #d8cfbd;
+    }
+
+    .line.title {
+      width: 58%;
+      height: 26px;
+      margin-bottom: 34px;
+      background: #a89b85;
+    }
+
+    .line.short { width: 48%; }
+    .line.mid { width: 74%; }
+    .line.long { width: 92%; }
+
+    .panel {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--navy);
+      color: var(--cream);
+    }
+
+    .panel-head {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 0 26px;
+      border-bottom: 1px solid rgba(244, 234, 219, 0.13);
+      font-size: 22px;
+      font-weight: 760;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-head img {
+      width: 37px;
+      height: 37px;
+      border-radius: 9px;
+    }
+
+    .panel-content {
+      padding: 30px 26px;
+      text-align: left;
+    }
+
+    .label {
+      margin-bottom: 16px;
+      color: var(--tan);
+      font-size: 13px;
+      font-weight: 820;
+      text-transform: uppercase;
+      letter-spacing: 0.035em;
+    }
+
+    .summary {
+      color: #f2e9dc;
+      font-size: clamp(24px, 2.5vw, 32px);
+      line-height: 1.26;
+      letter-spacing: -0.02em;
+      overflow-wrap: anywhere;
+    }
+
+    .cite {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      height: 30px;
+      margin-left: 8px;
+      padding: 0 9px;
+      border-radius: 10px;
+      background: rgba(213, 180, 135, 0.2);
+      color: #e9c898;
+      font-size: 17px;
+      font-weight: 780;
+      vertical-align: middle;
+    }
+
+    .question {
+      margin-top: 34px;
+      padding: 16px 18px;
+      border: 1px solid rgba(244, 234, 219, 0.13);
+      border-radius: 12px;
+      color: #aeb9c6;
+      font-size: 17px;
+    }
+
+    .source {
+      margin-top: 28px;
+      padding-top: 26px;
+      border-top: 1px solid rgba(244, 234, 219, 0.13);
+      color: #96a2b2;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .why {
+      width: min(100%, 980px);
+      margin: 56px auto 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .why-row {
+      display: grid;
+      grid-template-columns: 0.78fr 1fr;
+      gap: 44px;
+      align-items: start;
+      padding: 28px 0;
+    }
+
+    .why-row + .why-row {
+      border-top: 1px solid var(--line);
+    }
+
+    .why h2 {
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 770;
+      letter-spacing: -0.018em;
+    }
+
+    .why p {
+      max-width: 520px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.48;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    .newsletter {
+      width: min(100%, 980px);
+      display: grid;
+      grid-template-columns: 0.82fr 1fr;
+      gap: 42px;
+      align-items: end;
+      margin: 58px auto 0;
+      padding: 34px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .mini {
+      margin-bottom: 9px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .newsletter h2 {
+      font-size: clamp(30px, 3vw, 42px);
+      line-height: 1.06;
+      font-weight: 760;
+      letter-spacing: -0.03em;
+    }
+
+    .newsletter-copy p:last-child {
+      max-width: 430px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .newsletter-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .newsletter-form input {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(255, 249, 239, 0.78);
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      padding: 0 14px;
+      outline: none;
+    }
+
+    .newsletter-form input:focus {
+      border-color: rgba(47, 137, 131, 0.52);
+      box-shadow: 0 0 0 4px rgba(47, 137, 131, 0.12);
+    }
+
+    .newsletter-status {
+      grid-column: 1 / -1;
+      min-height: 20px;
+      color: var(--soft);
+      font-size: 13px;
+      font-weight: 560;
+      text-align: left;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .closer {
+      padding: 76px 0 78px;
+      text-align: center;
+    }
+
+    .closer p {
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.05;
+      font-weight: 760;
+      letter-spacing: -0.035em;
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 28px 0 38px;
+      color: var(--soft);
+      font-size: 13.5px;
+      font-weight: 520;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a:hover {
+      color: var(--ink);
+    }
+
+    @media (max-width: 860px) {
+      .shell {
+        width: min(100% - 30px, 1120px);
+      }
+
+      .nav-inner {
+        min-height: 62px;
+      }
+
+      .nav-link {
+        display: none;
+      }
+
+      .nav-actions {
+        display: none;
+      }
+
+      .brand span {
+        display: none;
+      }
+
+      .hero {
+        padding: 46px 0 52px;
+      }
+
+      h1 {
+        width: 100%;
+        max-width: 290px;
+        font-size: clamp(40px, 11.2vw, 45px);
+        letter-spacing: -0.02em;
+      }
+
+      .lede {
+        max-width: 280px;
+        overflow-wrap: anywhere;
+      }
+
+      .notes {
+        max-width: 270px;
+      }
+
+      .demo {
+        margin-top: 34px;
+        border-radius: 16px;
+      }
+
+      .demo-body {
+        position: relative;
+        display: block;
+        min-height: 360px;
+      }
+
+      .page {
+        display: block;
+        padding: 34px 22px 142px;
+      }
+
+      .line {
+        height: 8px;
+        margin-bottom: 12px;
+      }
+
+      .line.title {
+        width: 52%;
+        height: 19px;
+        margin-bottom: 26px;
+      }
+
+      .panel {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        width: min(76%, 260px);
+        max-height: 250px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 18px 48px rgba(7, 16, 28, 0.22);
+      }
+
+      .panel-head {
+        min-height: 58px;
+        padding: 0 14px;
+        font-size: 15px;
+      }
+
+      .panel-head img {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+      }
+
+      .panel-content {
+        padding: 20px 14px 22px;
+      }
+
+      .summary {
+        max-width: 312px;
+        font-size: 16.5px;
+        line-height: 1.38;
+      }
+
+      .cite {
+        min-width: 24px;
+        height: 24px;
+        border-radius: 8px;
+        font-size: 13px;
+      }
+
+      .question {
+        margin-top: 22px;
+        padding: 13px 13px;
+        font-size: 14px;
+      }
+
+      .source {
+        margin-top: 20px;
+        padding-top: 18px;
+        font-size: 13px;
+      }
+
+      .why {
+        margin-top: 44px;
+      }
+
+      .why-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 24px 0;
+      }
+
+      .why h2 {
+        font-size: 18px;
+      }
+
+      .why p {
+        max-width: 280px;
+        margin-inline: auto;
+        font-size: 16px;
+        text-align: center;
+      }
+
+      .newsletter {
+        grid-template-columns: 1fr;
+        gap: 22px;
+        margin-top: 46px;
+        padding: 30px 0;
+        text-align: center;
+      }
+
+      .newsletter-copy p:last-child {
+        max-width: 300px;
+        margin-inline: auto;
+        font-size: 16px;
+      }
+
+      .newsletter-form {
+        grid-template-columns: 1fr;
+        max-width: 320px;
+        width: 100%;
+        margin-inline: auto;
+      }
+
+      .newsletter-status {
+        text-align: center;
+      }
+
+      .closer {
+        padding: 56px 0 62px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .demo-body {
+        min-height: 378px;
+      }
+
+      .panel {
+        left: 50%;
+        right: auto;
+        width: min(calc(100% - 28px), 248px);
+        max-height: none;
+        transform: translateX(-50%);
+      }
+
+      .summary {
+        max-width: none;
+        font-size: 15.5px;
+      }
+
+      .question {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="shell nav-inner">
+      <a class="brand" href="/" aria-label="Steeped home">
+        <img src="./icons/icon48.png" alt="">
+        <span>Steeped</span>
+      </a>
+      <div class="nav-actions" aria-label="Site links">
+        <a class="nav-link" href="/privacy.html">Privacy</a>
+        <a class="nav-link" href="https://github.com/steeped-app/steeped" target="_blank" rel="noopener">Source</a>
+        <a class="button primary" data-install href="https://github.com/steeped-app/steeped">Install soon</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="shell hero" aria-labelledby="hero-title">
+      <img class="hero-icon" src="./icons/icon128.png" alt="">
+      <p class="eyebrow">For the pages you meant to read</p>
+      <h1 id="hero-title"><span>Big reads,</span><span>small notes.</span></h1>
+      <p class="lede">The current page becomes a short note with sources.</p>
+      <div class="actions">
+        <a class="button primary" data-install href="https://github.com/steeped-app/steeped">Install soon</a>
+        <a class="button secondary" href="https://github.com/steeped-app/steeped" target="_blank" rel="noopener">View source</a>
+      </div>
+      <div class="notes" aria-label="Steeped basics">
+        <span>No account</span>
+        <span>Your key stays in Chrome</span>
+        <span>Reads only when asked</span>
+      </div>
+
+      <div class="demo" aria-label="Steeped product preview">
+        <div class="demo-bar">
+          <div class="dots" aria-hidden="true">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <span class="demo-url">article.example</span>
+          <span></span>
+        </div>
+        <div class="demo-body">
+          <div class="page" aria-hidden="true">
+            <div class="line title"></div>
+            <div class="line long"></div>
+            <div class="line mid"></div>
+            <div class="line long"></div>
+            <div class="line short"></div>
+            <div class="line long"></div>
+            <div class="line mid"></div>
+            <div class="line long"></div>
+            <div class="line short"></div>
+          </div>
+          <aside class="panel">
+            <div class="panel-head">
+              <span>Steeped</span>
+              <img src="./icons/icon48.png" alt="">
+            </div>
+            <div class="panel-content">
+              <div class="label">Summary</div>
+              <p class="summary">Big read. Small note. Sources attached.<span class="cite">1</span></p>
+              <div class="question">Ask a follow-up</div>
+              <div class="source">Source 1<br>Same page, same tab.</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <div class="why">
+        <article class="why-row">
+          <h2>Get the point.</h2>
+          <p>Open a dense article, report, or doc. See what matters before reading all of it.</p>
+        </article>
+        <article class="why-row">
+          <h2>Trust the answer.</h2>
+          <p>Sources stay beside the summary, one click back to the page.</p>
+        </article>
+        <article class="why-row">
+          <h2>Keep it yours.</h2>
+          <p>Your key stays in Chrome. No account. No Steeped server.</p>
+        </article>
+      </div>
+
+      <section class="newsletter" id="updates" aria-labelledby="updates-title">
+        <div class="newsletter-copy">
+          <p class="mini">Updates</p>
+          <h2 id="updates-title">Occasional notes.</h2>
+          <p>Steeped updates and future small tools. No spam. No list games.</p>
+        </div>
+        <form class="newsletter-form" data-newsletter-form>
+          <label class="visually-hidden" for="newsletter-email">Email address</label>
+          <input id="newsletter-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
+          <button class="button primary" type="submit" data-newsletter-button>Keep me posted</button>
+          <p class="newsletter-status" data-newsletter-status>Unsubscribe anytime.</p>
+        </form>
+      </section>
+    </section>
+
+    <section class="shell closer" aria-label="Install Steeped">
+      <p>Small tool. One job.</p>
+      <div class="actions">
+        <a class="button primary" data-install href="https://github.com/steeped-app/steeped">Install soon</a>
+        <a class="button secondary" href="/privacy.html">Read privacy</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner">
+      <span>Steeped, 2026</span>
+      <div class="footer-links">
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="https://github.com/steeped-app/steeped" target="_blank" rel="noopener">Source</a>
+        <a href="mailto:hello@steeped.page">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const chromeStoreUrl = ''
+    // Public Loops form endpoint only. Never put a Loops API key here.
+    const loopsFormEndpoint = ''
+    const loopsMailingListId = ''
+
+    if (chromeStoreUrl) {
+      document.querySelectorAll('[data-install]').forEach((link) => {
+        link.href = chromeStoreUrl
+        link.textContent = 'Add to Chrome'
+        link.dataset.pending = 'false'
+      })
+    } else {
+      document.querySelectorAll('[data-install]').forEach((link) => {
+        link.dataset.pending = 'true'
+        link.setAttribute('aria-label', 'Chrome Web Store listing coming soon. View source on GitHub.')
+      })
+    }
+
+    const newsletterForm = document.querySelector('[data-newsletter-form]')
+
+    if (newsletterForm) {
+      const emailInput = newsletterForm.querySelector('input[name="email"]')
+      const button = newsletterForm.querySelector('[data-newsletter-button]')
+      const status = newsletterForm.querySelector('[data-newsletter-status]')
+
+      newsletterForm.addEventListener('submit', async (event) => {
+        event.preventDefault()
+
+        const email = emailInput.value.trim()
+
+        if (!email) {
+          status.textContent = 'Add an email first.'
+          return
+        }
+
+        if (!loopsFormEndpoint) {
+          const subject = encodeURIComponent('Steeped updates')
+          const body = encodeURIComponent(`Please add ${email} to the Steeped updates list.`)
+          window.location.href = `mailto:hello@steeped.page?subject=${subject}&body=${body}`
+          status.textContent = 'Email draft opened.'
+          return
+        }
+
+        const body = new URLSearchParams()
+        body.set('email', email)
+        body.set('source', 'steeped.page')
+        body.set('userGroup', 'Steeped updates')
+
+        if (loopsMailingListId) {
+          body.set('mailingLists', loopsMailingListId)
+        }
+
+        button.disabled = true
+        status.textContent = 'Adding you...'
+
+        try {
+          const response = await fetch(loopsFormEndpoint, {
+            method: 'POST',
+            body,
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          })
+          const result = await response.json().catch(() => ({ success: false }))
+
+          if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Newsletter signup failed')
+          }
+
+          emailInput.value = ''
+          status.textContent = 'Check your email.'
+        } catch {
+          status.textContent = 'Could not add that. Try hello@steeped.page.'
+        } finally {
+          button.disabled = false
+        }
+      })
+    }
+  </script>
+
+  <!-- Cloudflare Web Analytics -->
+  <script>
+    if (location.hostname === 'steeped.page' || location.hostname === 'www.steeped.page') {
+      const beacon = document.createElement('script')
+      beacon.defer = true
+      beacon.src = 'https://static.cloudflareinsights.com/beacon.min.js'
+      beacon.dataset.cfBeacon = '{"token":"2d9d74c813174e2e921047430ca5212b"}'
+      document.head.appendChild(beacon)
+    }
+  </script>
+  <!-- End Cloudflare Web Analytics -->
+</body>
+</html>

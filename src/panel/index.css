@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/onest-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/onest-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+:root {
+  --st-bg: #F3F0E8;
+  --st-bg-surface: #E6E9DE;
+  --st-bg-elevated: #FBFAF5;
+  --st-text-primary: #171915;
+  --st-text-secondary: #4D554A;
+  --st-text-tertiary: #7A8173;
+  --st-accent: #3F725B;
+  --st-accent-contrast: #FBFAF5;
+  --st-accent-light: #D9E7D5;
+  --st-accent-hover: #335F4B;
+  --st-accent-faint: #EDF4E9;
+  --st-border: #C8CBBF;
+  --st-border-light: #D8DACD;
+  --st-source-accent: #B5853F;
+  --st-error: #C53030;
+  --st-error-bg: #FEF2F2;
+  --st-error-border: #FECACA;
+  --st-error-text: #7F1D1D;
+  --st-success: #16A34A;
+  --st-success-bg: #F0FDF4;
+}
+
+.dark {
+  --st-bg: #121510;
+  --st-bg-surface: #1B2119;
+  --st-bg-elevated: #222A20;
+  --st-text-primary: #F2EFE6;
+  --st-text-secondary: #C7CBBC;
+  --st-text-tertiary: #8E9685;
+  --st-accent: #9FBD8D;
+  --st-accent-contrast: #121510;
+  --st-accent-light: #2F3B2D;
+  --st-accent-hover: #B3CE9F;
+  --st-accent-faint: #20291E;
+  --st-border: #323B2F;
+  --st-border-light: #263023;
+  --st-source-accent: #D1A85F;
+  --st-error: #FC8181;
+  --st-error-bg: #2D1B1B;
+  --st-error-border: #5C2626;
+  --st-error-text: #FECACA;
+  --st-success: #34D399;
+  --st-success-bg: #12291F;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  background: var(--st-bg);
+}
+
+.panel-header {
+  gap: 0.5rem;
+}
+
+.panel-scroll-area {
+  scrollbar-gutter: stable;
+}
+
+.st-rich-text {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Shared utility for header icon buttons */
+.icon-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--st-text-tertiary);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.12s ease;
+}
+
+.icon-btn:hover {
+  background: var(--st-bg-surface);
+  color: var(--st-text-secondary);
+}
+
+@media (max-width: 360px) {
+  .panel-action-tertiary {
+    display: none;
+  }
+
+  .panel-brand-title {
+    max-width: 84px;
+  }
+}
+
+@media (max-width: 330px) {
+  .panel-action-secondary {
+    display: none;
+  }
+
+  .panel-brand-title {
+    display: none;
+  }
+
+  .panel-header {
+    padding-left: 0.75rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Scrollbar theming */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--st-border); border-radius: 2px; }
+
+@keyframes slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(380%); }
+}
+
+@keyframes citeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

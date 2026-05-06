@@ -1,0 +1,50 @@
+{
+  "name": "steeped",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "rm -rf dist && npm run build:panel && npm run build:content && npm run build:extractor && npm run build:worker && npm run build:settings && npm run build:static",
+    "build:panel": "vite build",
+    "build:content": "esbuild src/content/panel-host.ts --bundle --outfile=dist/content/panel-host.js --format=iife --target=chrome100",
+    "build:extractor": "esbuild src/content/extractor.ts --bundle --outfile=dist/content/extractor.js --format=iife --target=chrome100",
+    "build:worker": "esbuild src/background/service-worker.ts --bundle --outfile=dist/background/service-worker.js --format=iife --target=chrome100",
+    "build:settings": "esbuild src/settings/settings.ts --bundle --outfile=dist/settings/settings.js --format=iife --target=chrome100 && cp src/settings/settings.html dist/settings/",
+    "build:static": "cp manifest.json dist/ && cp -r public/icons dist/ && cp -r public/fonts dist/ && cp node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs dist/content/pdf.worker.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:public": "bash scripts/public-surface-check.sh",
+    "check:links": "node scripts/check-site-links.mjs",
+    "eval:prompts": "esbuild scripts/eval-prompts.ts --bundle --platform=node --format=esm --outfile=/tmp/steeped-eval-prompts.mjs && node /tmp/steeped-eval-prompts.mjs",
+    "eval:prompts:judge": "esbuild scripts/eval-prompts.ts --bundle --platform=node --format=esm --outfile=/tmp/steeped-eval-prompts.mjs && node /tmp/steeped-eval-prompts.mjs --judge",
+    "qa:extension-ux": "esbuild scripts/extension-ux-qa.ts --bundle --platform=node --format=esm --outfile=/tmp/steeped-extension-ux-qa.mjs && node /tmp/steeped-extension-ux-qa.mjs",
+    "qa:live-web": "esbuild scripts/live-web-qa.ts --bundle --platform=node --format=esm --outfile=/tmp/steeped-live-web-qa.mjs && node /tmp/steeped-live-web-qa.mjs",
+    "qa:render-output": "esbuild scripts/render-output-report.ts --bundle --platform=node --format=esm --outfile=/tmp/steeped-render-output-report.mjs && node /tmp/steeped-render-output-report.mjs",
+    "graphics:launch": "python3 scripts/render-launch-graphics.py",
+    "screenshots:store": "sh -c 'esbuild scripts/capture-store-screenshots.ts --bundle --platform=node --format=esm --outfile=/tmp/steeped-capture-store-screenshots.mjs && node /tmp/steeped-capture-store-screenshots.mjs \"$@\" && npm run graphics:launch' --",
+    "setup:hooks": "git config core.hooksPath .githooks",
+    "package": "npm run build && rm -f steeped-$npm_package_version.zip && cd dist && zip -r ../steeped-$npm_package_version.zip . -x '*.DS_Store'"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "pdfjs-dist": "^5.7.284",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^4.1.4",
+    "autoprefixer": "^10.4.20",
+    "esbuild": "^0.25.12",
+    "happy-dom": "^20.8.9",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.6.3",
+    "vite": "^6.4.2",
+    "vitest": "^4.1.4"
+  }
+}

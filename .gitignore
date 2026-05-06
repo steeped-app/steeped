@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.local
+.vscode/
+.idea/
+*.zip
+__pycache__/
+*.py[cod]
+coverage/
+playwright-report/
+test-results/
+eval/results/
+eval/extension-ux-results/
+eval/live-fixtures/
+eval/live-results/
+
+# Local launch, design, and agent workspace. Keep the public repo product-only.
+/A[G]ENTS.md
+/C[L]AUDE.md
+/TODO.md
+/.codex/
+/design/

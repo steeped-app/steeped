@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Steeped",
+  "description": "Big reads, small notes. Short summaries with sources attached.",
+  "version": "1.0.0",
+  "homepage_url": "https://steeped.page",
+  "permissions": ["activeTab", "storage", "scripting", "contextMenus"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Open Steeped",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+S",
+        "mac": "MacCtrl+Shift+S"
+      },
+      "description": "Open or focus Steeped panel"
+    }
+  },
+  "options_ui": {
+    "page": "settings/settings.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["panel/index.html", "panel/assets/*", "content/pdf.worker.mjs", "fonts/*"],
+      "matches": ["http://*/*", "https://*/*"]
+    }
+  ]
+}
